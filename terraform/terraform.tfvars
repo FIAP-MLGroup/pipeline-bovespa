@@ -1,0 +1,1 @@
+lab_role_arn = "arn:aws:iam::756014088805:role/LabRole"
