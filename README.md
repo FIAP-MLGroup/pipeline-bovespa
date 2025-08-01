@@ -89,15 +89,6 @@ Os dados são salvos em formato Parquet com as seguintes colunas:
 - **data_processamento**: Timestamp do processamento
 - **data_particao**: Data de partição (YYYY-MM-DD)
 
-## Particionamento
-
-Os dados são organizados por data:
-```
-data/
-└── data_particao=2025-01-15/
-    └── b3_ibov_20250115.parquet
-```
-
 ## Infraestrutura AWS
 
 O projeto cria automaticamente via Terraform:
@@ -116,55 +107,6 @@ O projeto cria automaticamente via Terraform:
 ### Amazon Athena
 - **Workgroup**: Consultas SQL nos dados processados
 
-## Monitoramento
-
-### Verificar Status dos Recursos
-```bash
-# Listar arquivos no bucket raw
-aws s3 ls s3://$(terraform output -raw raw_bucket_name)/data/ --recursive
-
-# Listar arquivos processados
-aws s3 ls s3://$(terraform output -raw refined_bucket_name)/refined/ --recursive
-
-# Status do Glue Job
-aws glue get-job-runs --job-name $(terraform output -raw glue_job_name) --max-results 5
-
-# Verificar tabelas no catálogo (database default)
-aws glue get-tables --database-name default
-```
-
-### Logs do CloudWatch
-```bash
-# Logs da Lambda
-aws logs describe-log-groups --log-group-name-prefix "/aws/lambda/$(terraform output -raw lambda_function_name)"
-
-# Logs do Glue Job
-aws logs describe-log-groups --log-group-name-prefix "/aws-glue/jobs/$(terraform output -raw glue_job_name)"
-```
-
-## Consultas no Athena
-
-Após o processamento, os dados estarão disponíveis para consulta no database **default**:
-
-```sql
--- Consultar dados refinados
-SELECT * FROM b3_dados_refinados 
-WHERE partition_date = '2025-01-15' 
-LIMIT 10;
-
--- Análise por classificação de peso
-SELECT classificacao_peso, COUNT(*) as total
-FROM b3_dados_refinados 
-GROUP BY classificacao_peso;
-
--- Consultar ações específicas
-SELECT nome_empresa, peso_total_carteira, classificacao_peso
-FROM b3_dados_refinados 
-WHERE partition_date = '2025-01-15'
-ORDER BY peso_total_carteira DESC
-LIMIT 10;
-```
-
 ## Dependências
 
 - **Python 3.8+**
@@ -175,28 +117,3 @@ LIMIT 10;
   - pandas: Manipulação de dados
   - boto3: Integração com AWS
   - pyarrow: Suporte a Parquet
-
-## Troubleshooting
-
-### Verificar Configuração AWS
-```bash
-aws sts get-caller-identity
-aws configure list
-```
-
-### Testar Scraper Localmente
-```bash
-python scraper/b3_scraper.py --no-upload --output-dir test_data
-```
-
-### Verificar Logs de Erro
-```bash
-# Logs da Lambda
-aws logs filter-log-events --log-group-name "/aws/lambda/$(terraform output -raw lambda_function_name)" --filter-pattern "ERROR"
-
-# Status do último job Glue
-aws glue get-job-run --job-name $(terraform output -raw glue_job_name) --run-id $(aws glue get-job-runs --job-name $(terraform output -raw glue_job_name) --max-results 1 --query 'JobRuns[0].Id' --output text)
-
-# Verificar tabela no database default
-aws glue get-table --database-name default --name b3_dados_refinados
-```
