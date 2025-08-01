@@ -1,1 +1,1 @@
-lab_role_arn = "arn:aws:iam::756014088805:role/LabRole"
+lab_role_arn = "arn:aws:iam::<ACCOUNT_ROLE>::role/LabRole"

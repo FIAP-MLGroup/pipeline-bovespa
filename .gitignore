@@ -61,6 +61,3 @@ Thumbs.db
 # Backup files
 *.bak
 *.backup
-
-# Cost optimization docs (optional - remove if you want to track)
-# COST_OPTIMIZATION.md
