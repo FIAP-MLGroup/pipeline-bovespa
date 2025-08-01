@@ -19,18 +19,9 @@ Sistema de extração e processamento de dados do índice IBOVESPA da B3 (Brasil
 │   └── __init__.py
 ├── data/                  # Dados locais particionados
 ├── terraform/             # Infraestrutura AWS
-└── scripts/
-    └── setup.sh          # Script de configuração inicial
 ```
 
-## Instalação e Configuração
-
-### 1. Configuração Inicial
-```bash
-./scripts/setup.sh
-```
-
-### 2. Deploy da Infraestrutura AWS
+# Deploy da Infraestrutura AWS
 
 #### Inicializar Terraform
 ```bash
